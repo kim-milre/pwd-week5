@@ -1,3 +1,4 @@
+const restaurantsService = require('../services/restaurants.service');
 const submissionsService = require('../services/submissions.service');
 const asyncHandler = require('../utils/asyncHandler');
 
