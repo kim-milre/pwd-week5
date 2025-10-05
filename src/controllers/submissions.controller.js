@@ -68,4 +68,30 @@ exports.remove = asyncHandler(async (req, res) => {
   res.status(204).send();
 });
 
+exports.approve = asyncHandler(async (req, res) => {
+  const submission = await submissionsService.getSubmissionById(req.params.id);
+  if (!submission) {
+    return res.status(404).json({ error: { message: 'Submission not found' } });
+  }
+
+  // Restaurant payload 생성
+  const restaurantPayload = {
+    id: Date.now(), // 고유 ID
+    name: submission.restaurantName,
+    category: submission.category,
+    location: submission.location,
+    priceRange: submission.priceRange || '정보 없음',
+    description: submission.review || '',
+    recommendedMenu: normaliseMenu(submission.recommendedMenu),
+    image: submission.image || '',
+  };
+
+  // Restaurant 생성
+  const createdRestaurant = await restaurantsService.createRestaurant(restaurantPayload);
+
+  // 승인 후 Submission 삭제(또는 상태 변경)
+  await submissionsService.deleteSubmission(req.params.id);
+
+  res.status(201).json({ data: createdRestaurant });
+});
 
